@@ -12,7 +12,7 @@ MQ 的优点：
 
   比如在商品购物业务中，用户支付完之后 ，支付业务直接将消息投递到 MQ 中，就直接可以返回用户结果，而无需再同步等待订单服务、短信服务等模块的响应，实现了任务的异步处理，从而实现了异步通信。
 
-  <img src="D:/MyNote/RabbitMQ/RabbitMQ.assets/image-20220320164432393.png" alt="image-20220320164432393" style="zoom:50%;" />
+  <img src="RabbitMQ.assets/image-20220320164432393.png" alt="image-20220320164432393" style="zoom:50%;" />
 
 - 应用程序**解耦合**
 
@@ -20,7 +20,7 @@ MQ 的优点：
 
   比如在商品购物业务中，需要增加积分服务，那么只需要写完积分服务代码后，让其监听 MQ 即可，不需要再修改支付服务的代码，从而实现了解耦。而如果积分服务挂了，但并不会影响支付服务，从而实现了**故障隔离**（如果是同步调用，那么一个挂了，则相当于所有都挂了，消息队列机制则不会。）
 
-  <img src="D:/MyNote/RabbitMQ/RabbitMQ.assets/image-20220320164619922.png" alt="image-20220320164619922" style="zoom:50%;" />
+  <img src="RabbitMQ.assets/image-20220320164619922.png" alt="image-20220320164619922" style="zoom:50%;" />
 
 - **削峰填谷**
 
@@ -28,7 +28,7 @@ MQ 的优点：
 
   比如在双十一秒杀时，有大量的订单消息，如果不对流量进行控制，那么订单服务可能会由于无法支撑那么大的并发量而挂掉。假设订单服务每秒只能处理10000次订单，而实际每秒有20000次订单，此时可以通过消息队列做一个缓冲作用，让订单服务分2秒处理掉这20000次订单。
 
-  <img src="D:/MyNote/RabbitMQ/RabbitMQ.assets/image-20220320165734757.png" alt="image-20220320165734757" style="zoom:50%;" />
+  <img src="RabbitMQ.assets/image-20220320165734757.png" alt="image-20220320165734757" style="zoom:50%;" />
 
 MQ 的缺点：
 
@@ -75,7 +75,7 @@ JMS 即 Java 消息服务（JavaMessage Service）应用程序接口，是一个
 
 RabbitMQ 基本结构：
 
-<img src="D:/MyNote/RabbitMQ/RabbitMQ.assets/image-20220320171238323.png" alt="image-20220320171238323" style="zoom: 67%;" />
+<img src="RabbitMQ.assets/image-20220320171238323.png" alt="image-20220320171238323" style="zoom: 67%;" />
 
 - `publisher`：生产者，负责产生消息
 - `exchange`：交换机，负责路由消息到队列中
@@ -86,8 +86,6 @@ RabbitMQ 基本结构：
 RabbitMQ 提供了 6 种模式：简单模式，work 模式，Publish/Subscribe 发布与订阅模式，Routing 路由模式，Topics主题模式，RPC 远程调用模式（远程调用，不太算MQ）；官网对应模式介绍：https://www.rabbitmq.com/getstarted.html
 
 <img src="RabbitMQ.assets/1555988678324.png" alt="1555988678324" style="zoom:50%;" />
-
-
 
 ## 2. 安装
 
@@ -1439,7 +1437,7 @@ RabbitMQ工作模式：
 - **RabbitMQ 宕机，导致消息丢失。**
 - **消费者发生异常，导致消息丢失。**
 
-<img src="D:/MyNote/RabbitMQ/RabbitMQ.assets/image-20220319100542408.png" alt="image-20220319100542408" style="zoom: 80%;" />
+<img src="RabbitMQ.assets/image-20220319100542408.png" alt="image-20220319100542408" style="zoom: 80%;" />
 
 相对应的解决方案如下：
 
@@ -1657,7 +1655,7 @@ spring:
 
   可以看出前两种实现都不太好，推荐第三种方式，当重试几次后，仍然得不到好的处理，就将无法被正确处理的消息投递到指定的交换机中，然后在存储到专门用于存储异常消息的队列中，后续可采取人工方式进行集中处理！
 
-  <img src="D:/MyNote/RabbitMQ/RabbitMQ.assets/image-20220319155905258.png" alt="image-20220319155905258" style="zoom:80%;" />
+  <img src="RabbitMQ.assets/image-20220319155905258.png" alt="image-20220319155905258" style="zoom:80%;" />
 
   ~~~java
   @Configuration
@@ -1751,7 +1749,7 @@ RabbitMQ 支持以下两种方式设置 TTL：
 
    可以利用死信交换机收集所有消费者处理失败的消息（死信），交由人工处理，进一步提高消息队列的可靠性（注意和消费者消息重试的 RepublishMessageRecoverer 区分）。
 
-   <img src="D:/MyNote/RabbitMQ/RabbitMQ.assets/image-20220319171652756.png" alt="image-20220319171652756" style="zoom:80%;" />
+   <img src="RabbitMQ.assets/image-20220319171652756.png" alt="image-20220319171652756" style="zoom:80%;" />
 
 2. 如果当前队列没有指定交换机，这个消息就会被丢弃。
 
@@ -1841,7 +1839,7 @@ RabbitMQ默认没有延迟队列，但可以通过以下两种方式实现延迟
 - 让一个死信队列 Q2 绑定此死信交换机 DLX。
 - 对于Q1，我们不添加任何消费者对其进行消费，那么一旦生产者发送消息投递到 Q1 中后，由于没有消费者进行消费，那么消息一定会超时，从而会被投递到 DLX，从而被投递到 Q2中，我们设置消费者用于对 Q2 进行消费，此时就实现了生产者与消费者之间消息的延迟接收。
 
-<img src="D:/MyNote/RabbitMQ/RabbitMQ.assets/image-20220319175550818.png" alt="image-20220319175550818" style="zoom:80%;" />
+<img src="RabbitMQ.assets/image-20220319175550818.png" alt="image-20220319175550818" style="zoom:80%;" />
 
 ### 7.2  官方插件
 
@@ -1857,7 +1855,7 @@ RabbitMQ默认没有延迟队列，但可以通过以下两种方式实现延迟
 
 选择合适的版本，我的 RabbitMQ 版本为3.8.15，那么插件可以选择[3.8.9版本](https://github.com/rabbitmq/rabbitmq-delayed-message-exchange/releases/tag/3.8.9)，然后下载 .ez文件
 
-<img src="D:/MyNote/RabbitMQ/RabbitMQ.assets/image-20220319214015332.png" alt="image-20220319214015332" style="zoom:80%;" />
+<img src="RabbitMQ.assets/image-20220319214015332.png" alt="image-20220319214015332" style="zoom:80%;" />
 
 将.ez文件传到服务器，并复制到 docker 容器内部
 
@@ -1875,7 +1873,7 @@ rabbitmq-plugins enable rabbitmq_delayed_message_exchange
 
 此时我们在 RabbitMQ 的管理页面创建交换机时，就会发现多了一个 `x-delayed-message` 类型。
 
-<img src="D:/MyNote/RabbitMQ/RabbitMQ.assets/image-20220319214751218.png" alt="image-20220319214751218" style="zoom:80%;" />
+<img src="RabbitMQ.assets/image-20220319214751218.png" alt="image-20220319214751218" style="zoom:80%;" />
 
 从名称上就可以看出 `rabbitmq-delaed-message-exchange`实际上是针对交换机做的延迟，而不是队列，其原理。当我们发送消息到类型为 `x-delayed-message` 的交换机时，此交换机会有以下处理步骤：
 
@@ -2024,7 +2022,7 @@ RabbitMQ的集群有两种模式：
 - 如果 MQ 做了持久化，那么实例恢复后，才可以继续访问；
 - 如果 MQ 没做持久化，那么消息就丢了。
 
-<img src="D:/MyNote/RabbitMQ/RabbitMQ.assets/image-20220320204329857.png" alt="image-20220320204329857" style="zoom:80%;" />
+<img src="RabbitMQ.assets/image-20220320204329857.png" alt="image-20220320204329857" style="zoom:80%;" />
 
 ### 11.2 镜像集群
 
@@ -2034,7 +2032,7 @@ RabbitMQ的集群有两种模式：
 
 本质上是主从结构，创建队列的节点被称为该队列的**主节点，**备份到的其它节点叫做该队列的**镜像**节点。一旦某个 RabbitMQ 示例挂机了，那么其镜像节点就会成为新的主节点。
 
-<img src="D:/MyNote/RabbitMQ/RabbitMQ.assets/image-20220320205249660.png" alt="image-20220320205249660" style="zoom:80%;" />
+<img src="RabbitMQ.assets/image-20220320205249660.png" alt="image-20220320205249660" style="zoom:80%;" />
 
 镜像集群模式并不需要额外搭建，只需要我们在普通集群的基础上将队列配置为镜像队列即可。
 
